@@ -1,0 +1,21 @@
+Описание данных: Таблица BONUS содержит информацию о начислениях бонусных баллов за покупки по программе лояльности. Атрибуты: идентификатор клиента (client_id), дата начисления бонусов (bonus_date), количество начисленных бонусов (bonus_cnt), mcc код транзакции, за которую начислены бонусы (mcc_code). Таблица  MCC_CATEGORIES является справочником mcc-кодов. Атрибуты: mcc-код (mcc_code), категория (например, супермаркеты, транспорт, аптеки и пр., mcc_category) 
+Задание: Вывести 1000 клиентов, которые первыми набрали 1000 бонусных баллов за покупки в категории «Авиабилеты» и «Отели».
+BONUS
+CLIENT_ID	BONUS_DATE	BONUS_CNT	MCC_CODE
+1232110	2018-01-01	12	3617
+234235	2018-06-17	5	5931
+…	…	…	…
+
+MCC_CATEGORIES
+MCC_CODE	MCC_CATEGORY
+3031	Авиабилеты
+5735	Музыка
+…	…
+
+SELECT b.CLIENT_ID
+from bonus as b
+join MCC_CATEGORIES as m ON b.mcc_code = m.mcc_code
+where m.mcc_category in ('Авиабилеты', 'Отели')
+GROUP BY b.CLIENT_ID
+HAVING sum(b.bonus_cnt) >=1000
+limit 1000;
