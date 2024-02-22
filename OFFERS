@@ -1,0 +1,14 @@
+Описание данных:  таблица OFFERS содержит информацию о кредитных предложениях клиентов банка. У каждого предложения есть идентификатор (offer_id), дата начала действия (offer_start_date), дата окончания действия (offer_expiration_date). 
+Задание: вывести количество действующих предложений на каждый день 2018 года. 
+ 
+OFFER_ID	OFFER_START_DATE	OFFER_EXPIRATION_DATE
+83942	2017-12-01	2018-02-01
+94859	2018-05-03	2018-10-19
+…	…	…
+
+SELECT date_in_18y, 
+	(SELECT COUNT(DISTINCT(offer_id)) 
+     FROM offers
+     where date_in_18y BETWEEN offer_start_date AND offer_expiration_date) AS active_offers
+FROM generate_series('2018-01-01'::date, '2018-12-31'::date, '1day'::interval) as date_in_18y
+ORDER BY date_in_18y
