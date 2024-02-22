@@ -1,0 +1,19 @@
+Описание данных: Таблица CARDS содержит информацию о всех картах клиентов банка. Атрибуты: идентификатор клиента (client_id), идентификатор карты (card_id), дата выдачи карты (open_date), дата закрытия карты (close_date), тип карты – дебетовая (DC) или кредитная (СС) (card_type). 
+Задание: выбрать из всех работающих на дату 1.09.2018 дебетовых карт клиента ту, которая была выдана последней. Формат выдачи – client_id, card_id.
+
+CLIENT_ID	CARD_ID	OPEN_DATE	CLOSE_DATE	CARD_TYPE
+1232110	49582985729	2019-01-12	NULL	DC
+234235	48574092749	2017-03-29	2018-09-01	CC
+…	…	…	…	…
+
+
+SELECT client_id, card_id
+FROM (
+        -- Ранжируем карты клиентов по дате выдачи в порядке убывания
+        SELECT client_id, card_id, open_date, ROW_NUMBER() OVER (PARTITION BY client_id ORDER BY open_date DESC) AS number_range
+        FROM CARDS
+        WHERE card_type = 'DC' -- Выбираем дебетовые карты
+            AND open_date <= '2018-09-01' -- Выбираем карты открытые до 2018-09-01
+            AND (close_date > '2018-09-01' OR close_date IS NULL) -- Убираем закрытые карты или карты без даты закрытия
+) 
+WHERE number_range = 1 -- Указываем последнюю карту каждого клиента
