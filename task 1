@@ -1,0 +1,30 @@
+Описание данных: таблица ACTIVE_CLIENTS содержит ежемесячный срез клиентов банка, которые совершали какие-либо транзакции в данном месяце. Атрибуты: отчетный месяц (report_month) и идентификатор клиента (client_id). Считаем, что клиент «оттек» из банка в месяце N, если в месяце N он активен (присутствует в таблице ACTIVE_CLIENTS) и не активен в месяцы N+1, N+2, N+3. 
+REPORT_MONTH	CLIENT_ID
+2018-01-01	1847982357
+2018-01-01	938475
+2018-02-01	1847982357
+2018-02-01	6789998
+2018-03-01	67900001
+…	…
+
+Задание: вывести количество активных клиентов на каждый месяц, долю клиентов, которые «оттекли» в каждом месяце.
+; 
+-- Запрос на количество активных клиентов на каждый месяц
+SELECT REPORT_MONTH, COUNT(DISTINCT CLIENT_ID) AS active_clients
+FROM ACTIVE_CLIENTS
+GROUP BY REPORT_MONTH
+ORDER BY REPORT_MONTH;
+
+
+долю клиентов, которые «оттекли» в каждом месяце.
+SELECT 
+    current_month.REPORT_MONTH,
+    COUNT(DISTINCT current_month.CLIENT_ID) AS active_clients,
+    COUNT(DISTINCT next_month.CLIENT_ID) AS exit_clients,
+    COUNT(DISTINCT next_month.CLIENT_ID) / COUNT(DISTINCT current_month.CLIENT_ID)::numeric AS exit_rate
+FROM ACTIVE_CLIENTS AS current_month
+LEFT JOIN ACTIVE_CLIENTS AS next_month ON current_month.CLIENT_ID = next_month.CLIENT_ID
+    AND next_month.REPORT_MONTH = current_month.REPORT_MONTH + interval '1 month'
+WHERE next_month.CLIENT_ID IS NULL
+GROUP BY current_month.REPORT_MONTH
+ORDER BY current_month.REPORT_MONTH;
